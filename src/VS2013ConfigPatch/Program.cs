@@ -22,19 +22,12 @@ namespace VS2013ConfigPatch
 
         static void Main(string[] args)
         {
+            bool undo = StartUp();
             try
             {
                 var targetFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), LOCATION_WITHIN_PROGRAM_FILES);
-                if (args?.FirstOrDefault() == "-u")
-                {
-                    BackUpFile(targetFileName, undo: true);
-                    ModifyXml(targetFileName, undo: true);
-                }
-                else
-                {
-                    BackUpFile(targetFileName);
-                    ModifyXml(targetFileName);
-                }
+                BackUpFile(targetFileName, undo);
+                ModifyXml(targetFileName, undo);
             }
             catch (UnauthorizedAccessException)
             {
@@ -51,6 +44,43 @@ namespace VS2013ConfigPatch
 
             Console.WriteLine("\nPress any key to exit...");
             Console.ReadKey();
+        }
+
+        private static bool StartUp()
+        {
+            Console.WriteLine(@"
+           _ _           
+     /\   | (_)          
+    /  \  | |___   _____ 
+   / /\ \ | | \ \ / / _ \
+  / ____ \| | |\ V /  __/
+ /_/    \_\_|_| \_/ \___|
+Patch for Visual Studio 2013
+
+Do you want to apply the patch or undo it?
+Press [A] to Apply
+Press [U] to Undo
+
+");
+
+            do
+            {
+                var key = Console.ReadKey().KeyChar.ToString();
+                if (key.Equals("A", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Console.WriteLine();
+                    return false;
+                }
+                else if (key.Equals("U", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Console.WriteLine();
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine(" (you need to press either A or U. You most likely should press A)");
+                }
+            } while (true);
         }
 
         private static void BackUpFile(string targetFileName, bool undo = false)
@@ -106,7 +136,13 @@ namespace VS2013ConfigPatch
             {
                 // Save the xml
                 doc.Save(path);
-                Console.WriteLine("Patch successful :)");
+                Console.WriteLine(@"
+
+Patch successful :)
+
+Remember to install Visual Studio 2015 Build Tools.
+
+");
             }
             else
             {
